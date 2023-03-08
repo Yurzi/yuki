@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::{
+    default::Default,
     fs::File,
     io::{Read, Write},
     path::Path,
@@ -9,8 +10,25 @@ use std::{
 #[derive(Serialize, Deserialize)]
 pub struct Config {
     api_key: String,
+
+    #[serde(default)]
     sessions_dir: String,
+
+    #[serde(default)]
+    roles_dir: String,
+
     default_session: String,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            api_key: "".to_string(),
+            sessions_dir: "sessions".to_string(),
+            roles_dir: "roles".to_string(),
+            default_session: "".to_string(),
+        }
+    }
 }
 
 impl Config {
@@ -35,6 +53,24 @@ impl Config {
             File::create(path).unwrap_or_else(|_| panic!("{} can't be opend", path.display()));
 
         fd.write_all(yaml_str.as_bytes()).unwrap();
+    }
+}
+
+impl Config {
+    pub fn api_key(&self) -> &str {
+        &self.api_key
+    }
+
+    pub fn sessions_dir(&self) -> &str {
+        &self.sessions_dir
+    }
+
+    pub fn roles_dir(&self) -> &str {
+        &self.roles_dir
+    }
+
+    pub fn default_session(&self) -> &str {
+        &self.default_session
     }
 }
 
