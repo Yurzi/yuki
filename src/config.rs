@@ -36,8 +36,14 @@ impl Default for Config {
 
 impl Config {
     pub fn load(path: &Path) -> Config {
+        // create default file when not exist
+        match path.try_exists() {
+            Ok(false) => Self::default().save(path),
+            Err(_) => panic!("permission denied during check {}", path.display()),
+            _ => {}
+        }
         let mut fd =
-            File::open(path).unwrap_or_else(|_| panic!("{} can't be opend", path.display()));
+            File::open(path).unwrap_or_else(|_| panic!("{} can't be opened", path.display()));
 
         let mut yaml_str: String = String::new();
         fd.read_to_string(&mut yaml_str).expect("internal error!");
@@ -49,11 +55,11 @@ impl Config {
         config
     }
 
-    pub fn save(self, path: &Path) {
+    pub fn save(&self, path: &Path) {
         let yaml_str = serde_yaml::to_string(&self).unwrap_or_else(|_| panic!("bad syntax"));
 
         let mut fd =
-            File::create(path).unwrap_or_else(|_| panic!("{} can't be opend", path.display()));
+            File::create(path).unwrap_or_else(|_| panic!("{} can't be opened", path.display()));
 
         fd.write_all(yaml_str.as_bytes()).unwrap();
     }
