@@ -39,7 +39,7 @@ impl Config {
         // create default file when not exist
         match path.try_exists() {
             Ok(false) => Self::default().save(path),
-            Err(_) => panic!("Can't check existence of {}", path.display()),
+            Err(_) => panic!("permission denied during check {}", path.display()),
             _ => {}
         }
         let mut fd =
