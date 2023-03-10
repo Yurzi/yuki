@@ -37,8 +37,10 @@ impl Default for Config {
 impl Config {
     pub fn load(path: &Path) -> Config {
         // create default file when not exist
-        if let Ok(false) = path.try_exists() {
-            Self::default().save(path);
+        match path.try_exists() {
+            Ok(false) => Self::default().save(path),
+            Err(_) => panic!("Can't check existence of {}", path.display()),
+            _ => {}
         }
         let mut fd =
             File::open(path).unwrap_or_else(|_| panic!("{} can't be opened", path.display()));
